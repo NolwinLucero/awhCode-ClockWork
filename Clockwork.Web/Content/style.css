@@ -1,0 +1,13 @@
+﻿
+
+@media (min-width: 768px) {
+    div#content > div:nth-child(even) {
+        background: lavender;
+    }
+}
+
+@media (max-width: 768px) {
+    div.row div:nth-child(even) {
+        background: lavender;
+    }
+}

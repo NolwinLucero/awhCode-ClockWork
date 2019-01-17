@@ -1,0 +1,74 @@
+﻿@model List<string>
+<script>
+    //function UserAction() {
+    //    var xhttp = new XMLHttpRequest();
+    //    xhttp.onreadystatechange = function () {
+    //        if (this.readyState == 4 && this.status == 200) {
+    //            document.getElementById("output").innerHTML = this.responseText;
+    //        }
+    //    };
+    //    xhttp.open("GET", "http://127.0.0.1:5000/api/currenttime", true);
+    //    xhttp.setRequestHeader("Content-type", "application/json");
+    //    xhttp.send();
+    //}
+    $(function () {
+
+        $.ajax({
+            contentType: 'application/json',
+            type: 'GET',
+            url: 'http://localhost:5000/api/currenttime',
+            success: function (data, textStatus, jqXHR) {
+                data.forEach(function (row) {
+                    DoAction(row.timezoneTime + '<br />' + '<b>' + row.timezone + '</b>');
+                });
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                $('#getPeopleResult').val(jqXHR.statusText);
+            }
+        });
+
+        $('#getTime').click(function () {
+            $.ajax(
+                {
+                    contentType: 'application/json',
+                    type: 'POST',
+                    url: 'http://localhost:5000/api/currenttime',                    
+                    dataType: 'json',                    
+                    data: JSON.stringify($('#ddlTimeZones option:selected').text()),
+                    success: function (result) {
+                        DoAction(result.timezoneTime + '<br />' + '<b>' + result.timezone + '</b>');
+                    },
+                    error: function (xhr, status, p3, p4) {
+                        var err = 'Error ' + ' ' + status + ' ' + p3;
+                        if (xhr.responseText && xhr.responseText[0] == '{')
+                            err = JSON.parse(xhr.responseText).message;
+                        console.log(err);
+                    }
+                });
+        });
+
+        function DoAction(val) {
+            var lastRow = $('#content').children().last().attr('id');
+
+            if (lastRow == undefined)
+                $('#content').append("<div id='row1' class='row'><div class='col-sm-3'>" + val + "</div></>");
+            else {
+                if ($('#' + lastRow).children().length < 4)
+                    $('#' + lastRow).append("<div class='col-sm-3'>" + val + "</div>");
+                else
+                    $('#content').append("<div id='row" + (parseInt(lastRow.match(/\d+/)) + 1) + "' class='row'><div class='col-sm-3'>" + val + "</div></>");
+            }
+        }
+    });
+</script>
+
+<div class="container1">
+    <h1 class="text-center">AWH Clockwork Project @ViewData["Version"] on @ViewData["Runtime"]!</h1>
+    <div class="row text-center">
+        @Html.DropDownList("ddlTimeZones", new SelectList(Model.Select(x => new { Value = x, Text = x }), "Value", "Text"))
+        <button id="getTime" type="button" class="btn">Get the time</button>
+    </div>
+</div>
+<div id="content" class="container">
+
+</div>
